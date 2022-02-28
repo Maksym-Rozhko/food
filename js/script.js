@@ -117,7 +117,7 @@ modalBtnElemsTrigger.forEach(btn => {
 modal.addEventListener('click', e => {
     const target = e.target;
     
-    target === modal || target === modalBtnElemsClose ? closeModal() : false;
+    target === modal || target === modalBtnElemsClose || target.getAttribute('data-close') === '' ? closeModal() : false;
 });
 
 document.addEventListener('keydown', e => {
@@ -126,7 +126,7 @@ document.addEventListener('keydown', e => {
     code === 'Escape' && modal.classList.contains('show') ? closeModal() : false;
 });
 
-const modalTimerId = setTimeout(showModal, 10000);
+const modalTimerId = setTimeout(showModal, 50000);
 
 window.addEventListener('scroll', showModalByScroll);
 
@@ -216,16 +216,25 @@ const message = {
     loading: 'Загрузка...',
     success: 'Спасибо! Скоро мы с вами свяжемся.',
     failure: 'Что-то пошло не так...',
+    preloader: 'icons/spinner.svg',
 };
+
+forms.forEach(form => {
+    postData(form);
+});
 
 function postData(form) {
     form.addEventListener('submit', e => {
         e.preventDefault();
 
-        const statusMessage = document.createElement('div');
-        statusMessage.classList.add('status');
-        statusMessage.textContent = message.loading;
-        form.append(statusMessage);
+        const statusMessage = document.createElement('img');
+        statusMessage.src = message.preloader;
+        statusMessage.style.cssText = `
+            display: block;
+            margin: 0 auto;
+        `;
+        // form.append(statusMessage);
+        form.insertAdjacentElement('afterend', statusMessage);
 
         const request = new XMLHttpRequest();
 
@@ -247,18 +256,37 @@ function postData(form) {
 
         request.addEventListener('load', () => {
             if (request.status === 200) {
-                statusMessage.textContent = message.success;
+                showThanksModal(message.success);
                 form.reset();
-                setTimeout(() => {
-                    statusMessage.remove();
-                }, 2000);
+                statusMessage.remove();
             } else {
-                statusMessage.textContent = message.failure;
+                showThanksModal(message.failure);
             };
         });
     });
 };
 
-forms.forEach(form => {
-    postData(form);
-});
+function showThanksModal (message) {
+    const prevModalDialog = document.querySelector('.modal__dialog');
+
+    prevModalDialog.classList.add('hide');
+    prevModalDialog.classList.remove('show');
+    showModal();
+
+    const thanksModal = document.createElement('div');
+    thanksModal.classList.add('modal__dialog');
+    thanksModal.innerHTML = `
+        <div class="modal__content">
+            <div data-close class="modal__close">&times;</div>
+            <div class="modal__title">${message}</div>
+        </div>
+    `;
+
+    document.querySelector('.modal').append(thanksModal);
+    setTimeout(() => {
+        thanksModal.remove();
+        prevModalDialog.classList.add('show');
+        prevModalDialog.classList.remove('hide');
+        closeModal();
+    }, 4000);
+};
