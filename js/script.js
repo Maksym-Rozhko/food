@@ -210,49 +210,55 @@ card2.render();
 card3.render();
 
 
+// Forms 
+const forms = document.querySelectorAll('form');
+const message = {
+    loading: 'Загрузка...',
+    success: 'Спасибо! Скоро мы с вами свяжемся.',
+    failure: 'Что-то пошло не так...',
+};
 
+function postData(form) {
+    form.addEventListener('submit', e => {
+        e.preventDefault();
 
-// functions constructor
+        const statusMessage = document.createElement('div');
+        statusMessage.classList.add('status');
+        statusMessage.textContent = message.loading;
+        form.append(statusMessage);
 
-// function User(name, id) {
-//     this.name = name;
-//     this.id = id;
-//     this.human = true;
-//     this.hello = function() {
-//         console.log(`Hello ${this.name}!`);
-//     };
-// };
+        const request = new XMLHttpRequest();
 
-// class User {
-//     constructor (name, id) {
-//         this.name = name;
-//         this.id = id;
-//         this.human = true;
-//     };
-//     hello() {
-//         console.log(`Hello ${this.name}!`);
-//     };
-//     exit() {
-//         console.log(`Пользователь ${this.name} покинул чат`);
-//     };
-// };
+        request.open('POST', 'server.php');
+        // request.setRequestHeader('Content-type', 'application/json');
 
-// User.prototype.exit = function() {
-//     console.log(`Пользователь ${this.name} покинул чат`);
-// };
+        const formData = new FormData(form);
 
-// let newUser1 = new User('David', 28);
-// let newUser2 = new User('Alex', 20);
+        // convert into json, uncomment setRequestHeader
+        // const object = {};
+        // formData.forEach(function(value, key) {
+        //     object[key] = value;
+        // });
 
-// // newUser2.status = 'merried';
+        // const json = JSON.stringify(object);
+        // request.send(json);
 
-// newUser1.hello();
-// newUser2.hello();
+        request.send(formData);
 
-// setTimeout(() => {
-//     newUser1.exit();
-//     newUser2.exit();
-// }, 2000);
+        request.addEventListener('load', () => {
+            if (request.status === 200) {
+                statusMessage.textContent = message.success;
+                form.reset();
+                setTimeout(() => {
+                    statusMessage.remove();
+                }, 2000);
+            } else {
+                statusMessage.textContent = message.failure;
+            };
+        });
+    });
+};
 
-// console.log(newUser1);
-// console.log(newUser2);
+forms.forEach(form => {
+    postData(form);
+});
