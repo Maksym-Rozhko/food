@@ -1,4 +1,5 @@
-const slides = document.querySelectorAll('.offer__slide'),
+const slider = document.querySelector('.offer__slider'),
+    slides = document.querySelectorAll('.offer__slide'),
     prev = document.querySelector('.offer__slider-prev'),
     next = document.querySelector('.offer__slider-next'),
     total = document.querySelector('#total'),
@@ -28,6 +29,25 @@ slides.forEach(slide => {
     slide.style.width = width;
 });
 
+slider.style.position = 'relative';
+
+const indicators = document.createElement('ol');
+const dots = [];
+indicators.classList.add('carousel-dots');
+slider.append(indicators);
+
+for (let i = 0; i < slides.length; i++) {
+    const dot = document.createElement('li');
+    dot.classList.add('dot');
+    dot.setAttribute('data-slide-to', i + 1);
+    indicators.append(dot);
+    dots.push(dot);
+
+    if (i === 0) {
+        dot.classList.add('dot-active');
+    }
+};
+
 function currentSlide() {
     if (slides.length < 10) {
         current.textContent = `0${slideIndex}`;
@@ -36,6 +56,13 @@ function currentSlide() {
     }
 
     slidesField.style.transform = `translateX(-${offset}px)`;
+};
+
+function currentDots() {
+    dots.forEach(dot => {
+        dot.classList.remove('dot-active');
+        dots[slideIndex - 1].classList.add('dot-active');
+    });
 };
 
 next.addEventListener('click', () => {
@@ -50,7 +77,9 @@ next.addEventListener('click', () => {
     } else {
         slideIndex++;
     }
+
     currentSlide();
+    currentDots();
 });
 
 prev.addEventListener('click', () => {
@@ -65,49 +94,20 @@ prev.addEventListener('click', () => {
     } else {
         slideIndex--;
     }
+    
     currentSlide();
+    currentDots();
 });
 
-// showSlides(slideIndex);
+dots.forEach(dot => {
+    dot.addEventListener('click', e => {
+        const target = e.target;
+        const slideTo = target.getAttribute('data-slide-to');
 
-// if (slides.length < 10) {
-//     total.textContent = `0${slides.length}`;
-// } else {
-//     total.textContent = slides.length;
-// }
+        slideIndex = slideTo;
+        offset = +width.slice(0, width.length - 2) * (slideTo - 1);
 
-// function showSlides(n) {
-//     if (n > slides.length) {
-//         slideIndex = 1;
-//     };
-
-//     if (n < 1) {
-//         slideIndex = slides.length;
-//     };
-
-//     slides.forEach(item => {
-//         item.classList.add('hide');
-//         item.classList.remove('fade')
-//     });
-
-//     slides[slideIndex - 1].classList.add('fade');
-//     slides[slideIndex - 1].classList.remove('hide');
-
-//     if (slides.length < 10) {
-//         current.textContent = `0${slideIndex}`;
-//     } else {
-//         current.textContent = slideIndex;
-//     }
-// };
-
-// function changeSlide(n) {
-//     showSlides(slideIndex += n);
-// };
-
-// next.addEventListener('click', () => {
-//     changeSlide(1);
-// });
-
-// prev.addEventListener('click', () => {
-//     changeSlide(-1);
-// });
+        currentSlide();
+        currentDots();
+    });
+});
