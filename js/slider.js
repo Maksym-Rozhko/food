@@ -65,6 +65,10 @@ function currentDots() {
     });
 };
 
+function deleteNotDigits(str) {
+    return +str.replace(/\D/g, '');
+}
+
 next.addEventListener('click', () => {
     if (offset === +width.slice(0, width.length - 2) * (slides.length - 1)) {
         offset = 0;
