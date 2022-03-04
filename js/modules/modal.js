@@ -1,30 +1,37 @@
-function modal() {
-    const modal = document.querySelector('.modal');
-    const modalBtnElemsTrigger = document.querySelectorAll('[data-modal');
-    const modalBtnElemsClose = document.querySelector('[data-close');
+function showModal(modalSelector, modalTimerId) {
+    const modal = document.querySelector(modalSelector);
 
-    function showModal() {
-        modal.classList.add('show');
-        modal.classList.remove('hide');
-        document.body.style.overflow = 'hidden';
+    modal.classList.add('show');
+    modal.classList.remove('hide');
+    document.body.style.overflow = 'hidden';
+
+    if (modalTimerId) {
         clearInterval(modalTimerId);
-    };
+    }
+};
 
-    function closeModal() {
-        modal.classList.add('hide');
-        modal.classList.remove('show');
-        document.body.style.overflow = '';
-    };
+function closeModal(modalSelector) {
+    const modal = document.querySelector(modalSelector);
+
+    modal.classList.add('hide');
+    modal.classList.remove('show');
+    document.body.style.overflow = '';
+};
+
+function modal(triggerSelector, modalSelector, modalTimerId) {
+    const modal = document.querySelector(modalSelector);
+    const modalBtnElemsTrigger = document.querySelectorAll(triggerSelector);
+    const modalBtnElemsClose = document.querySelector('[data-close');
 
     function showModalByScroll() {
         if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight - 1) {
-            showModal();
+            showModal(modalSelector, modalTimerId);
             window.removeEventListener('scroll', showModalByScroll);
         }
     };
 
     modalBtnElemsTrigger.forEach(btn => {
-        btn.addEventListener('click', showModal);
+        btn.addEventListener('click', () => showModal(modalSelector, modalTimerId));
     });
 
     // modalBtnElemsClose.addEventListener('click', closeModal);
@@ -32,18 +39,18 @@ function modal() {
     modal.addEventListener('click', e => {
         const target = e.target;
         
-        target === modal || target === modalBtnElemsClose || target.getAttribute('data-close') === '' ? closeModal() : false;
+        target === modal || target === modalBtnElemsClose || target.getAttribute('data-close') === '' ? closeModal(modalSelector) : false;
     });
 
     document.addEventListener('keydown', e => {
         const code = e.code;
 
-        code === 'Escape' && modal.classList.contains('show') ? closeModal() : false;
+        code === 'Escape' && modal.classList.contains('show') ? closeModal(modalSelector) : false;
     });
-
-    const modalTimerId = setTimeout(showModal, 50000);
 
     window.addEventListener('scroll', showModalByScroll);
 };
 
-module.exports = modal;
+export default modal;
+export {showModal};
+export {closeModal};
